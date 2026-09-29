@@ -77,14 +77,14 @@ export default function Home() {
             gap: '0.5rem',
             padding: '0.4rem 1rem',
             borderRadius: 'var(--radius-full)',
-            background: 'rgba(99, 102, 241, 0.12)',
-            border: '1px solid rgba(99, 102, 241, 0.35)',
-            color: '#a5b4fc',
+            background: 'rgba(16, 185, 129, 0.12)',
+            border: '1px solid rgba(52, 211, 153, 0.35)',
+            color: '#6ee7b7',
             fontSize: '0.85rem',
             marginBottom: '1.25rem',
           }}
         >
-          <Sparkles size={15} color="#818cf8" />
+          <Sparkles size={15} color="#34d399" />
           <span>Autonomous Multi-Agent Intelligence Engine</span>
         </div>
 
@@ -113,8 +113,8 @@ export default function Home() {
         style={{
           padding: '2rem',
           marginBottom: '2.5rem',
-          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 35px rgba(99, 102, 241, 0.15)',
-          border: '1px solid rgba(99, 102, 241, 0.25)',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px rgba(16, 185, 129, 0.12)',
+          border: '1px solid rgba(52, 211, 153, 0.22)',
         }}
       >
         <form
@@ -148,7 +148,7 @@ export default function Home() {
                 left: '1.25rem',
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: '#818cf8',
+                color: '#34d399',
               }}
             />
           </div>
@@ -232,9 +232,9 @@ export default function Home() {
                         fontSize: '0.8rem',
                         textTransform: 'capitalize',
                         cursor: 'pointer',
-                        background: searchDepth === depth ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255, 255, 255, 0.05)',
-                        border: `1px solid ${searchDepth === depth ? '#6366f1' : 'var(--border-subtle)'}`,
-                        color: searchDepth === depth ? '#ffffff' : 'var(--text-secondary)',
+                        background: searchDepth === depth ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        border: `1px solid ${searchDepth === depth ? '#10b981' : 'var(--border-subtle)'}`,
+                        color: searchDepth === depth ? '#6ee7b7' : 'var(--text-secondary)',
                       }}
                     >
                       {depth}
@@ -253,7 +253,7 @@ export default function Home() {
                   max="10"
                   value={maxSources}
                   onChange={(e) => setMaxSources(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#6366f1' }}
+                  style={{ width: '100%', accentColor: '#10b981' }}
                 />
               </div>
             </div>
@@ -288,12 +288,12 @@ export default function Home() {
         <section>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <History size={18} color="#818cf8" />
+              <History size={18} color="#34d399" />
               <span>Recent Research Sessions</span>
             </h3>
             <button
               onClick={() => navigate('/history')}
-              style={{ background: 'transparent', border: 'none', color: '#38bdf8', fontSize: '0.85rem', cursor: 'pointer' }}
+              style={{ background: 'transparent', border: 'none', color: '#34d399', fontSize: '0.85rem', cursor: 'pointer' }}
             >
               View all ({sessions.length}) →
             </button>
@@ -333,7 +333,7 @@ export default function Home() {
                     <Clock size={12} />
                     <span>{new Date(s.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <span style={{ color: '#818cf8', fontWeight: 500 }}>Open Session →</span>
+                  <span style={{ color: '#34d399', fontWeight: 500 }}>Open Session →</span>
                 </div>
               </div>
             ))}

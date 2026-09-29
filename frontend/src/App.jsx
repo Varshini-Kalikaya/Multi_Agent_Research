@@ -5,6 +5,7 @@ import Home from './pages/Home.jsx';
 import Research from './pages/Research.jsx';
 import Report from './pages/Report.jsx';
 import ResearchHistory from './pages/ResearchHistory.jsx';
+import Scene from './components/Scene.jsx';
 import { ResearchProvider } from './context/ResearchContext.jsx';
 import { ResearchAPI } from './services/api.js';
 
@@ -29,7 +30,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <ResearchProvider>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        {/* Layer 0: ThreeUI WarpField Letter Storm Animation */}
+        <Scene />
+
+        {/* Layer 1: Subtle Readability Overlay */}
+        <div className="readability-overlay" />
+
+        {/* Layer 2: Existing Application UI */}
+        <div style={{ position: 'relative', zIndex: 2, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Navbar healthStatus={healthStatus} />
 
           <main style={{ flex: 1 }}>
