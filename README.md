@@ -8,38 +8,38 @@
 
 ```mermaid
 flowchart TD
-    User([User / Browser]) -->|1. Submit Research Topic| UI[React / Vite Dashboard]
-    UI -->|2. POST /api/research| API[Express API Server]
-    API -->|3. Initialize Session| DB[(MongoDB)]
+    User([User / Browser]) -->|"1. Submit Research Topic"| UI["React / Vite Dashboard"]
+    UI -->|"2. POST /api/research"| API["Express API Server"]
+    API -->|"3. Initialize Session"| DB[("MongoDB")]
     
-    API -->|4. Trigger Pipeline| Orchestrator[Research Orchestrator Agent]
+    API -->|"4. Trigger Pipeline"| Orchestrator["Research Orchestrator Agent"]
     
-    subgraph MultiAgentPipeline [Coordinated Multi-Agent Pipeline]
-        Orchestrator -->|Phase 1: Planning| Planner[1. Planner Agent]
-        Planner -->|Decompose Topic into Sub-Questions| PlanDB[(ResearchPlan)]
+    subgraph MultiAgentPipeline ["Coordinated Multi-Agent Pipeline"]
+        Orchestrator -->|"Phase 1: Planning"| Planner["1. Planner Agent"]
+        Planner -->|"Decompose Topic into Sub-Questions"| PlanDB[("ResearchPlan")]
         
-        Planner -->|Phase 2: Discovery| SearchAg[2. Search Agent]
-        SearchAg -->|Parallel Queries + Deduplication| WebSearch[Search Provider: Tavily / Mock]
-        WebSearch -->|Candidate URLs & Metadata| SourcesDB[(Source Registry: S1..Sn)]
+        Planner -->|"Phase 2: Discovery"| SearchAg["2. Search Agent"]
+        SearchAg -->|"Parallel Queries and Deduplication"| WebSearch["Search Provider: Tavily / Mock"]
+        WebSearch -->|"Candidate URLs and Metadata"| SourcesDB[("Source Registry: S1..Sn")]
         
-        SearchAg -->|Phase 3: Extraction| Summarizer[3. Summarizer Agent]
-        Summarizer -->|HTML Noise Clean + Claim Extraction| SumDB[(SourceSummary: Claims & Stats)]
+        SearchAg -->|"Phase 3: Extraction"| Summarizer["3. Summarizer Agent"]
+        Summarizer -->|"HTML Clean and Claim Extraction"| SumDB[("SourceSummary: Claims & Stats")]
         
-        Summarizer -->|Phase 4: Verification| FactChecker[4. Fact-Checker Agent]
-        FactChecker -->|Cross-Source Matrix & Conflict Detection| FactDB[(FactCheck: Disputed & Contradictions)]
+        Summarizer -->|"Phase 4: Verification"| FactChecker["4. Fact-Checker Agent"]
+        FactChecker -->|"Cross-Source Matrix & Conflict Detection"| FactDB[("FactCheck: Disputed & Contradictions")]
         
-        FactChecker -->|Phase 5: Aggregation| EvidenceSvc[5. Evidence Aggregator Service]
-        EvidenceSvc -->|Structured Evidence Package| Writer[6. Writer Agent]
+        FactChecker -->|"Phase 5: Aggregation"| EvidenceSvc["5. Evidence Aggregator Service"]
+        EvidenceSvc -->|"Structured Evidence Package"| Writer["6. Writer Agent"]
         
-        Writer -->|Draft Synthesis with Inline Citations| ReportDraft[Report Draft]
+        Writer -->|"Draft Synthesis with Inline Citations"| ReportDraft["Report Draft"]
         
-        ReportDraft -->|Phase 6: Audit & Repair| CitationVal[7. Citation Validator & Corrector]
-        CitationVal -->|Verify [S#] against Genuine Sources| FinalReport[(ResearchReport)]
+        ReportDraft -->|"Phase 6: Audit & Repair"| CitationVal["7. Citation Validator & Corrector"]
+        CitationVal -->|"Verify Citations against Genuine Sources"| FinalReport[("ResearchReport")]
     end
     
-    Orchestrator -->|Real-Time Progress 0%..100%| Sockets[Socket.IO Server]
-    Sockets -->|Live WebSocket Stream| UI
-    FinalReport -->|Structured Output & Markdown Download| UI
+    Orchestrator -->|"Real-Time Progress 0%..100%"| Sockets["Socket.IO Server"]
+    Sockets -->|"Live WebSocket Stream"| UI
+    FinalReport -->|"Structured Output & Markdown Download"| UI
 ```
 
 ---
