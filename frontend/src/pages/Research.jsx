@@ -46,8 +46,18 @@ export default function Research() {
     const loadInitialState = async () => {
       try {
         setIsLoading(true);
-        const sessionData = await ResearchAPI.getSession(sessionId);
-        if (!isMounted) return;
+        let sessionData = null;
+        let attempts = 0;
+        while (attempts < 2 && !sessionData && isMounted) {
+          try {
+            attempts++;
+            sessionData = await ResearchAPI.getSession(sessionId);
+          } catch (err) {
+            if (attempts >= 2) throw err;
+            await new Promise((r) => setTimeout(r, 600));
+          }
+        }
+        if (!isMounted || !sessionData) return;
         setSession(sessionData);
 
         // Fetch sources if already collected
@@ -142,10 +152,16 @@ export default function Research() {
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
           {fetchError || 'Unable to locate research session'}
         </p>
-        <button onClick={() => navigate('/')} className="btn-secondary">
-          <ArrowLeft size={16} />
-          <span>Back to Home</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+          <button onClick={() => window.location.reload()} className="btn-primary btn-sm">
+            <RefreshCw size={14} />
+            <span>Retry</span>
+          </button>
+          <button onClick={() => navigate('/')} className="btn-secondary btn-sm">
+            <ArrowLeft size={14} />
+            <span>Back to Home</span>
+          </button>
+        </div>
       </div>
     );
   }
