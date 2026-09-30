@@ -43,9 +43,21 @@ export function useResearchSocket(sessionId) {
     // Connect to backend Socket.IO (uses VITE_SOCKET_URL or VITE_API_URL in production, '/' for dev proxy)
     const getSocketServerUrl = () => {
       const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL;
-      if (!socketUrl) return '/';
-      const clean = socketUrl.trim().replace(/\/$/, '');
-      return clean.replace(/\/api$/, '');
+      if (socketUrl && socketUrl.trim()) {
+        const clean = socketUrl.trim().replace(/\/$/, '');
+        return clean.replace(/\/api$/, '');
+      }
+
+      // If running on Vercel or remote host, default to the deployed Render backend
+      if (
+        typeof window !== 'undefined' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1'
+      ) {
+        return 'https://multi-agent-research1.onrender.com';
+      }
+
+      return '/';
     };
 
     const socket = io(getSocketServerUrl(), {

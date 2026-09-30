@@ -24,4 +24,6 @@ export const env = {
   MAX_SOURCES_PER_QUERY: parseInt(process.env.MAX_SOURCES_PER_QUERY || '5', 10),
   MAX_TOTAL_SOURCES: parseInt(process.env.MAX_TOTAL_SOURCES || '20', 10),
   MAX_CONCURRENT_LLM_CALLS: parseInt(process.env.MAX_CONCURRENT_LLM_CALLS || '3', 10),
+  JWT_SECRET: process.env.JWT_SECRET || 'multi_agent_research_jwt_secret_key_2026',
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
 };

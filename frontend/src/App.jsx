@@ -6,6 +6,7 @@ import Research from './pages/Research.jsx';
 import Report from './pages/Report.jsx';
 import ResearchHistory from './pages/ResearchHistory.jsx';
 import Scene from './components/Scene.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 import { ResearchProvider } from './context/ResearchContext.jsx';
 import { ResearchAPI } from './services/api.js';
 
@@ -29,7 +30,8 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <ResearchProvider>
+      <AuthProvider>
+        <ResearchProvider>
         {/* Layer 0: ThreeUI WarpField Letter Storm Animation */}
         <Scene />
 
@@ -75,6 +77,7 @@ export default function App() {
           </footer>
         </div>
       </ResearchProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

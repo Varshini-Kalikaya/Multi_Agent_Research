@@ -7,8 +7,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node tests/health.test.js && node tests/session.test.js && node tests/ai.test.js && node tests/search.test.js && node tests/planner.test.js && node tests/searchAgent.test.js && node tests/summarizer.test.js && node tests/factChecker.test.js && node tests/evidence.test.js && node tests/writer.test.js && node tests/citation.test.js && node tests/socket.test.js && node tests/integration.test.js",
+    "test": "node tests/health.test.js && node tests/auth.test.js && node tests/session.test.js && node tests/ai.test.js && node tests/search.test.js && node tests/planner.test.js && node tests/searchAgent.test.js && node tests/summarizer.test.js && node tests/factChecker.test.js && node tests/evidence.test.js && node tests/writer.test.js && node tests/citation.test.js && node tests/socket.test.js && node tests/integration.test.js",
     "test:health": "node tests/health.test.js",
+    "test:auth": "node tests/auth.test.js",
     "test:session": "node tests/session.test.js",
     "test:ai": "node tests/ai.test.js",
     "test:search": "node tests/search.test.js",
@@ -24,10 +25,12 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
     "socket.io": "^4.8.1",

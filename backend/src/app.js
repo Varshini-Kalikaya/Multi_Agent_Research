@@ -4,41 +4,24 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
+import { corsOptions } from './config/cors.js';
 
+import authRoutes from './routes/auth.routes.js';
 import researchRoutes from './routes/research.routes.js';
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
-
-// CORS configuration
-const allowedOrigins = [
-  env.CLIENT_URL,
-  ...(env.CORS_ORIGIN ? env.CORS_ORIGIN.split(',') : []),
-]
-  .filter(Boolean)
-  .flatMap((url) => [url.trim(), url.trim().replace(/\/$/, '')]);
-
+// Security middleware with cross-origin access enabled for modern web deployments
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin, development mode, wildcard, or matching allowed origins
-      if (
-        !origin ||
-        env.NODE_ENV === 'development' ||
-        allowedOrigins.includes('*') ||
-        allowedOrigins.includes(origin) ||
-        allowedOrigins.some((allowed) => allowed === origin.replace(/\/$/, ''))
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Blocked by CORS policy: Origin ${origin} is not allowed`));
-      }
-    },
-    credentials: true,
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false,
   })
 );
+
+// Unified CORS configuration supporting Vercel, Render, and Localhost
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Body parsing with size limits
 app.use(express.json({ limit: '1mb' }));
@@ -55,6 +38,9 @@ if (env.NODE_ENV === 'development') {
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+// Authentication endpoints
+app.use('/api/auth', authRoutes);
 
 // Research API endpoints (Phase 2 requirement)
 app.use('/api/research', researchRoutes);

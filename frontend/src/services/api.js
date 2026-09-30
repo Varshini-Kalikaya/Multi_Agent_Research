@@ -8,9 +8,22 @@ import axios from 'axios';
  */
 const getBaseURL = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl) return '/api';
-  const clean = envUrl.trim().replace(/\/$/, '');
-  return clean.endsWith('/api') ? clean : `${clean}/api`;
+  if (envUrl && envUrl.trim()) {
+    const clean = envUrl.trim().replace(/\/$/, '');
+    return clean.endsWith('/api') ? clean : `${clean}/api`;
+  }
+
+  // If running on Vercel or remote host, default to the deployed Render backend
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  ) {
+    return 'https://multi-agent-research1.onrender.com/api';
+  }
+
+  // Local development fallback to Vite proxy
+  return '/api';
 };
 
 const api = axios.create({
@@ -19,6 +32,37 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Automatic JWT Bearer token attachment
+api.interceptors.request.use(
+  (config) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch {}
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+export const AuthAPI = {
+  async register({ name, email, password }) {
+    const res = await api.post('/auth/register', { name, email, password });
+    return res.data;
+  },
+
+  async login({ email, password }) {
+    const res = await api.post('/auth/login', { email, password });
+    return res.data;
+  },
+
+  async getMe() {
+    const res = await api.get('/auth/me');
+    return res.data;
+  },
+};
 
 export const ResearchAPI = {
   // Session management

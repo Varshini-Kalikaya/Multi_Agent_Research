@@ -34,6 +34,7 @@ export const createSession = async (req, res, next) => {
 
     const session = await ResearchSession.create({
       topic: trimmedTopic,
+      userId: req.user ? req.user._id : null,
       status: ResearchSessionStatus.CREATED,
       progress: 0,
       currentStep: 'Session initialized',
