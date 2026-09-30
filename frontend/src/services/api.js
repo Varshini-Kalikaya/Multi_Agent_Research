@@ -1,7 +1,20 @@
 import axios from 'axios';
 
+/**
+ * Determine API baseURL:
+ * - In production (Render): uses VITE_API_URL (e.g. 'https://multi-agent-research-backend.onrender.com')
+ *   and ensures '/api' is appended.
+ * - In local dev (or if unset): falls back to '/api' which Vite proxies to localhost:5000.
+ */
+const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return '/api';
+  const clean = envUrl.trim().replace(/\/$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },

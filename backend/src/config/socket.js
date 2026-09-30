@@ -10,9 +10,29 @@ let ioInstance = null;
  * @returns {Server} Socket.IO server
  */
 export function initSocket(httpServer) {
+  const allowedOrigins = [
+    env.CLIENT_URL,
+    ...(env.CORS_ORIGIN ? env.CORS_ORIGIN.split(',') : []),
+  ]
+    .filter(Boolean)
+    .flatMap((url) => [url.trim(), url.trim().replace(/\/$/, '')]);
+
   ioInstance = new Server(httpServer, {
     cors: {
-      origin: env.CORS_ORIGIN || '*',
+      origin: (origin, callback) => {
+        if (
+          !origin ||
+          env.NODE_ENV === 'development' ||
+          allowedOrigins.length === 0 ||
+          allowedOrigins.includes('*') ||
+          allowedOrigins.includes(origin) ||
+          allowedOrigins.some((allowed) => allowed === origin.replace(/\/$/, ''))
+        ) {
+          callback(null, true);
+        } else {
+          callback(new Error(`Blocked by Socket.IO CORS: Origin ${origin} not allowed`));
+        }
+      },
       methods: ['GET', 'POST'],
       credentials: true,
     },

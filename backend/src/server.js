@@ -13,7 +13,7 @@ const startServer = async () => {
     const server = http.createServer(app);
     initSocket(server);
 
-    server.listen(env.PORT, () => {
+    server.listen(env.PORT, '0.0.0.0', () => {
       logger.info('SERVER', `Multi-Agent Research Assistant backend running on port ${env.PORT} in ${env.NODE_ENV} mode`);
       logger.info('SERVER', `Health check available at: http://localhost:${env.PORT}/api/health`);
     });

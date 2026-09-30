@@ -40,8 +40,15 @@ export function useResearchSocket(sessionId) {
   useEffect(() => {
     if (!sessionId) return;
 
-    // Connect to backend Socket.IO
-    const socket = io('/', {
+    // Connect to backend Socket.IO (uses VITE_SOCKET_URL or VITE_API_URL in production, '/' for dev proxy)
+    const getSocketServerUrl = () => {
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL;
+      if (!socketUrl) return '/';
+      const clean = socketUrl.trim().replace(/\/$/, '');
+      return clean.replace(/\/api$/, '');
+    };
+
+    const socket = io(getSocketServerUrl(), {
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,

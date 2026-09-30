@@ -13,14 +13,27 @@ const app = express();
 app.use(helmet());
 
 // CORS configuration
+const allowedOrigins = [
+  env.CLIENT_URL,
+  ...(env.CORS_ORIGIN ? env.CORS_ORIGIN.split(',') : []),
+]
+  .filter(Boolean)
+  .flatMap((url) => [url.trim(), url.trim().replace(/\/$/, '')]);
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman) or matching CLIENT_URL
-      if (!origin || origin === env.CLIENT_URL || env.NODE_ENV === 'development') {
+      // Allow requests with no origin, development mode, wildcard, or matching allowed origins
+      if (
+        !origin ||
+        env.NODE_ENV === 'development' ||
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.some((allowed) => allowed === origin.replace(/\/$/, ''))
+      ) {
         callback(null, true);
       } else {
-        callback(new Error('Blocked by CORS policy'));
+        callback(new Error(`Blocked by CORS policy: Origin ${origin} is not allowed`));
       }
     },
     credentials: true,
