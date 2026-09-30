@@ -9,6 +9,11 @@ export const connectDB = async () => {
     return conn;
   } catch (error) {
     logger.error('DATABASE', `MongoDB connection failed: ${error.message}`, error);
+    if (env.NODE_ENV === 'production') {
+      logger.warn('DATABASE', 'Server remaining online for health checks; retrying database connection in 5s...');
+      setTimeout(connectDB, 5000);
+      return;
+    }
     process.exit(1);
   }
 };

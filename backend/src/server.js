@@ -7,9 +7,6 @@ import { logger } from './utils/logger.js';
 
 const startServer = async () => {
   try {
-    // Connect to database
-    await connectDB();
-
     const server = http.createServer(app);
     initSocket(server);
 
@@ -17,6 +14,9 @@ const startServer = async () => {
       logger.info('SERVER', `Multi-Agent Research Assistant backend running on port ${env.PORT} in ${env.NODE_ENV} mode`);
       logger.info('SERVER', `Health check available at: http://localhost:${env.PORT}/api/health`);
     });
+
+    // Connect to database
+    await connectDB();
 
     const shutdown = async (signal) => {
       logger.info('SERVER', `Received ${signal}. Gracefully shutting down...`);
