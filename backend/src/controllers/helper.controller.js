@@ -3,7 +3,14 @@ import { logger } from '../utils/logger.js';
 
 export const handleHelperChat = async (req, res) => {
   try {
-    const { message, history, conversationId } = req.body;
+    const {
+      message,
+      history,
+      conversationId,
+      customApiKey,
+      customProvider,
+      customModel,
+    } = req.body;
 
     if (!message || typeof message !== 'string' || !message.trim()) {
       return res.status(400).json({
@@ -23,10 +30,18 @@ export const handleHelperChat = async (req, res) => {
 
     const userId = req.user?._id || null;
 
+    // Optional client-supplied AI configuration
+    const effectiveApiKey = customApiKey || req.headers['x-ai-key'] || null;
+    const effectiveProvider = customProvider || req.headers['x-ai-provider'] || null;
+    const effectiveModel = customModel || req.headers['x-ai-model'] || null;
+
     const result = await HelperService.chat({
       message: message.trim(),
       history: Array.isArray(history) ? history : [],
       userId,
+      customApiKey: effectiveApiKey,
+      customProvider: effectiveProvider,
+      customModel: effectiveModel,
     });
 
     return res.status(200).json({
@@ -34,6 +49,7 @@ export const handleHelperChat = async (req, res) => {
       message: result.message,
       isResearchTopic: result.isResearchTopic,
       suggestedTopic: result.suggestedTopic,
+      provider: result.provider || 'ai-assistant',
       conversationId: conversationId || null,
     });
   } catch (error) {

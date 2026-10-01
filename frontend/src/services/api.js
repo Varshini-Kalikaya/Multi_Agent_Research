@@ -65,8 +65,22 @@ export const AuthAPI = {
 };
 
 export const HelperAPI = {
-  async chat({ message, history = [], conversationId = null }) {
-    const res = await api.post('/helper/chat', { message, history, conversationId });
+  async chat({
+    message,
+    history = [],
+    conversationId = null,
+    customApiKey = null,
+    customProvider = null,
+    customModel = null,
+  }) {
+    const res = await api.post('/helper/chat', {
+      message,
+      history,
+      conversationId,
+      customApiKey,
+      customProvider,
+      customModel,
+    });
     return res.data;
   },
 };

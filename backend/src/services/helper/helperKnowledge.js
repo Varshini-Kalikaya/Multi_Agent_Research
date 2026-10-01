@@ -1,24 +1,120 @@
 /**
- * Smart contextual knowledge and response engine for Helper
- * Used when running offline, in test environments, or when OPENAI_API_KEY is not configured.
+ * Comprehensive Smart Contextual Knowledge & Response Engine for Helper
+ * Used as a dependable baseline, offline engine, and resilient fallback.
  */
 
 export function generateContextualResponse({ message, history = [], isResearchTopic = false, suggestedTopic = null }) {
-  const normalized = message.trim().toLowerCase();
+  if (!message || typeof message !== 'string') {
+    return "Hello! I'm Helper, your AI research companion. How can I help you today?";
+  }
+
+  const trimmed = message.trim();
+  const normalized = trimmed.toLowerCase();
   
   // Extract context from previous turns in history
   const lastUserMsg = [...history].reverse().find(m => m.role === 'user')?.content?.toLowerCase() || '';
   const lastAssistantMsg = [...history].reverse().find(m => m.role === 'assistant')?.content?.toLowerCase() || '';
 
-  // 1. Follow-up detection (e.g. "What are its advantages?", "How does it work?", "Give me an example")
+  // -------------------------------------------------------------------------
+  // 1. Greetings, Introductions & Identity
+  // -------------------------------------------------------------------------
+  const isGreeting = 
+    /^(hi|hello|hey|greetings|good\s+(morning|afternoon|evening)|howdy|sup|yo|hola)\b/i.test(trimmed) ||
+    normalized === 'hi' || normalized === 'hello' || normalized === 'hey';
+
+  if (isGreeting && !normalized.includes('what is') && !normalized.includes('how to')) {
+    return `### Hello! I'm Helper ✨
+
+I'm your intelligent AI assistant built into the **Multi-Agent Research Assistant** platform. Here is how I can assist you today:
+
+- 🔬 **Autonomous Research**: Propose any topic, and I will route it into our 6-agent deep research pipeline (Planning → Search → Summarization → Fact-Checking → Academic Synthesis → Citation Verification).
+- 💻 **Code & Debugging**: Ask for code snippets in Python, JavaScript, React, SQL, or help troubleshooting architectural bugs.
+- 💡 **Concepts & Tech**: Ask me to explain complex topics like **RAG**, **REST APIs**, **LLM Fine-Tuning**, or **System Design**.
+- 🧭 **Platform Navigation**: Ask about how to view session history, authenticate, or monitor live agent progress via WebSockets.
+
+*What would you like to explore or work on right now?*`;
+  }
+
+  if (
+    normalized.includes('who are you') || 
+    normalized.includes('what are you') || 
+    normalized.includes('what is your name') ||
+    normalized.includes('tell me about yourself')
+  ) {
+    return `### Meet Helper ✨
+
+I am **Helper**, an interactive AI assistant integrated into the **Multi-Agent Research Assistant** platform.
+
+**What I do:**
+1. **Answer Questions**: Explain computer science, programming, science, data analysis, and software architecture.
+2. **Write & Debug Code**: Generate clean, production-ready code with explanations in Python, JavaScript, TypeScript, React, and more.
+3. **Research Partner**: Help you brainstorm and formulate focused research hypotheses. When an empirical research question is identified, I can launch an autonomous multi-agent research session for you in one click.
+4. **Platform Guide**: Help you navigate the 6 coordinated agents, inspect discovered sources, review fact-checking reports, and export verified syntheses.
+
+*Feel free to ask me anything or try one of the suggestion chips!*`;
+  }
+
+  if (
+    normalized.includes('what can you do') || 
+    normalized.includes('how can you help') ||
+    normalized === 'help' ||
+    normalized === 'help me'
+  ) {
+    return `### How I Can Help You
+
+Here are some of the key things you can do with me:
+
+1. **Conduct Empirical Web Research**:
+   - Ask to investigate any topic (e.g. *"Research the impact of quantum computing on cryptography"*).
+   - I will detect the research scope and provide an immediate action card to launch our autonomous 6-agent pipeline.
+2. **Programming & Algorithms**:
+   - Write algorithms in Python, JavaScript, etc. with time and space complexity explanations.
+   - Debug components, configure API routes, or design data models.
+3. **Understand Technical Concepts**:
+   - Clear breakdowns of RAG vs. Fine-tuning, REST vs. GraphQL, JWT auth, WebSockets, or neural architectures.
+4. **App Guidance**:
+   - Learn how the **Planner**, **Search Agent**, **Summarizer**, **Fact-Checker**, **Writer**, and **Citation Validator** work together to eliminate hallucinations.
+
+*Try asking a question or typing a topic you'd like to investigate!*`;
+  }
+
+  // -------------------------------------------------------------------------
+  // 2. Application Guidance & Pipeline Architecture
+  // -------------------------------------------------------------------------
+  if (
+    normalized.includes('how does the research pipeline work') ||
+    normalized.includes('pipeline work') ||
+    normalized.includes('how does this app work') ||
+    normalized.includes('how does the application work') ||
+    normalized.includes('multi-agent') ||
+    (normalized.includes('explain') && normalized.includes('agents'))
+  ) {
+    return `### How the Multi-Agent Research Pipeline Works
+
+This platform uses a synchronized **6-Agent Autonomous Architecture** to research topics with high factual accuracy and zero fabricated citations:
+
+- **1. Planner Agent**: Analyzes your initial inquiry and generates a structured research plan with 3–5 discrete sub-questions and key objectives.
+- **2. Search Agent**: Runs parallel queries via search providers (e.g., Tavily API) with strict concurrency and domain deduplication.
+- **3. Summarizer Agent**: Ingests discovered web content, extracting verifiable claims, methodology dates, and quantitative statistics.
+- **4. Fact-Checker Agent**: Reconciles cross-source claims, identifying consensus and explicitly surfacing discrepancies or contradictions.
+- **5. Technical Writer Agent**: Synthesizes verified findings into an executive summary, key findings, and detailed analyses with inline citations (e.g. \`[S1]\`, \`[S2]\`).
+- **6. Citation Validator Agent**: Audits every citation tag against real ingested source URLs to ensure 100% zero hallucination.
+
+*You can start a research session anytime by submitting a topic on the **Home** tab or asking me to research it right here!*`;
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. Follow-up detection (Contextual conversational memory)
+  // -------------------------------------------------------------------------
   const isFollowUp = 
     normalized.startsWith('what are its') || 
     normalized.startsWith('what are their') || 
     normalized.includes('its advantages') || 
     normalized.includes('its benefits') ||
     normalized.includes('its disadvantages') ||
+    normalized.includes('its limitations') ||
     normalized.startsWith('how does it') ||
-    normalized.startsWith('tell me more about it') ||
+    normalized.startsWith('tell me more') ||
     normalized === 'more' ||
     normalized.startsWith('can you explain more');
 
@@ -26,7 +122,7 @@ export function generateContextualResponse({ message, history = [], isResearchTo
     if (lastUserMsg.includes('artificial intelligence') || lastUserMsg.includes(' ai') || lastAssistantMsg.includes('artificial intelligence')) {
       return `### Key Advantages of Artificial Intelligence (AI)
 
-Building on our discussion of **Artificial Intelligence**, here are its primary advantages across modern industries:
+Building on our discussion of **Artificial Intelligence (AI)**, here are its primary advantages across modern industries:
 
 1. **High Efficiency & Automation**: AI automates repetitive, high-volume tasks without fatigue, accelerating data processing and operational workflows.
 2. **24/7 Availability**: Unlike human labor, AI services and autonomous systems operate continuously with consistent availability.
@@ -40,7 +136,7 @@ Building on our discussion of **Artificial Intelligence**, here are its primary 
     if (lastUserMsg.includes('rag') || lastAssistantMsg.includes('retrieval-augmented')) {
       return `### Key Advantages of Retrieval-Augmented Generation (RAG)
 
-Following up on our comparison of **RAG**:
+Following up on our discussion of **RAG**:
 
 1. **Zero Model Retraining**: You can incorporate proprietary or dynamic company documents without fine-tuning expensive model weights.
 2. **Mitigated Hallucinations**: Grounding generation in retrieved text chunks forces the model to cite verifiable source material.
@@ -65,21 +161,129 @@ Continuing from our discussion of **RESTful Architecture**:
 
     return `### Contextual Follow-Up
 
-Based on our preceding conversation regarding **"${lastUserMsg.slice(0, 50)}..."**:
+Building on our conversation regarding **"${lastUserMsg.slice(0, 50)}..."**:
 
-The key advantages lie in **scalability**, **predictability**, and **seamless architectural integration**. When deployed in production environments, this approach minimizes operational overhead while ensuring verifiable, reproducible outputs.
+The primary benefits focus on **efficiency**, **scalability**, and **verifiability**. When designed with modular architecture, this strategy minimizes maintenance overhead while delivering predictable, robust results.
 
-*Could you specify which aspect you'd like to dive deeper into?*`;
+*Which specific aspect or technical detail would you like to explore next?*`;
   }
 
-  // 2. Python Array / Coding Questions
+  // -------------------------------------------------------------------------
+  // 4. Core Concepts: AI, Machine Learning & RAG
+  // -------------------------------------------------------------------------
+  if (
+    normalized.includes('what is artificial intelligence') ||
+    normalized === 'what is ai' ||
+    normalized.includes('define ai') ||
+    normalized.includes('concept of ai')
+  ) {
+    return `### What is Artificial Intelligence (AI)?
+
+**Artificial Intelligence (AI)** is a comprehensive field of computer science dedicated to creating software and systems capable of performing tasks that traditionally require human cognitive intelligence.
+
+---
+
+### Core Pillars of Modern AI:
+1. **Machine Learning (ML)**: Statistical algorithms that learn patterns and rules directly from empirical data rather than being explicitly hardcoded.
+2. **Deep Learning & Neural Networks**: Multi-layered artificial neural architectures inspired by biological cognition, powering modern computer vision, speech recognition, and Large Language Models (LLMs).
+3. **Natural Language Processing (NLP)**: Technologies that enable computers to understand, parse, synthesize, and generate human languages.
+4. **Autonomous Agent Systems**: Multi-agent coordinated architectures (like this research assistant) where specialized agents coordinate to plan, search, verify, and execute complex workflows.
+
+---
+
+### Key Applications:
+- **Autonomous Systems**: Self-driving vehicles, drone navigation, and robotic process automation.
+- **Healthcare & Diagnostics**: Automated radiology imaging analysis, genomic sequencing, and personalized drug discovery.
+- **Enterprise Intelligence**: Automated synthesis of unstructured data, cross-source fact-checking, and fraud anomaly detection.
+
+*Would you like to know how AI agents collaborate in our multi-agent research pipeline, or discuss a specific branch like RAG?*`;
+  }
+
+  if (
+    (normalized.includes('rag') && (normalized.includes('fine-tuning') || normalized.includes('finetuning') || normalized.includes('difference'))) ||
+    normalized.includes('what is rag')
+  ) {
+    return `### RAG (Retrieval-Augmented Generation) Explained
+
+**RAG** is an architecture that augments Large Language Models (LLMs) with dynamic, external knowledge retrieval before generating responses.
+
+| Dimension | **RAG (Retrieval-Augmented Generation)** | **Fine-Tuning** |
+| :--- | :--- | :--- |
+| **Core Mechanism** | Retrieves relevant text chunks via vector search and injects them into the prompt | Updates model weights through gradient descent on domain-specific datasets |
+| **Knowledge Freshness**| **Instant**: Update your database/files and the model has immediate access | **Static**: Stale as soon as fine-tuning finishes; requires retraining |
+| **Hallucination Rate** | **Low**: The model cites verbatim retrieved passages | **Moderate**: Can still hallucinate or drift |
+| **Cost & Compute** | Low compute cost (standard embeddings + vector indexing) | High compute cost (GPUs, long training runs) |
+
+*Our platform uses an autonomous RAG-inspired multi-agent architecture to search, summarize, and cross-verify claims from authentic web sources.*`;
+  }
+
+  // -------------------------------------------------------------------------
+  // 5. Technical Questions: REST APIs, WebSockets & Architecture
+  // -------------------------------------------------------------------------
+  if (normalized.includes('rest api') || (normalized.includes('rest') && normalized.includes('api'))) {
+    return `### What is a REST API?
+
+**REST** stands for **REpresentational State Transfer**. It is a software architectural style that defines a standard set of conventions for how clients (like browsers or mobile apps) communicate with a server over **HTTP**.
+
+---
+
+### Core Concept: Resources & Standard HTTP Verbs
+
+In a REST API, data entities are treated as **Resources** with clean URLs, manipulated using standard HTTP verbs:
+
+| HTTP Verb | Operation | Example Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **GET** | Read | \`GET /api/research/123\` | Fetch details of research session \`123\` |
+| **POST** | Create | \`POST /api/research\` | Create a new research session |
+| **PATCH / PUT**| Update | \`PATCH /api/auth/profile\` | Update existing user data |
+| **DELETE** | Remove | \`DELETE /api/research/123\` | Delete research session \`123\` |
+
+---
+
+### Practical Example
+
+#### 1. Client HTTP Request:
+\`\`\`http
+POST /api/research HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+Authorization: Bearer <jwt_token>
+
+{
+  "topic": "Quantum Computing Impact on Cryptography"
+}
+\`\`\`
+
+#### 2. Server Response (JSON):
+\`\`\`http
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+  "sessionId": "6abd47310a9f80fdb83d8119",
+  "status": "CREATED",
+  "topic": "Quantum Computing Impact on Cryptography"
+}
+\`\`\`
+
+---
+
+### The Key Principles of REST:
+1. **Stateless**: The server does not store client session states across requests; each HTTP request contains all necessary credentials.
+2. **Client-Server Decoupling**: The React frontend and Express backend can evolve independently.
+3. **Standardized Responses**: Uses standard HTTP status codes (200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 500 Server Error).`;
+  }
+
+  // -------------------------------------------------------------------------
+  // 6. Coding Solutions: Python, JavaScript & React
+  // -------------------------------------------------------------------------
   if (
     normalized.includes('python') && 
     (normalized.includes('duplicate') || normalized.includes('duplicates'))
   ) {
-    return `Here is a complete, efficient Python solution to find duplicate elements in an array (list):
+    return `Here is a clean, efficient Python program to find duplicate elements in an array (list):
 
-### Method 1: Using a Set for $O(n)$ Linear Time Complexity (Recommended)
+### Method 1: Using a Set for $O(n)$ Linear Time (Recommended)
 
 \`\`\`python
 def find_duplicates(arr):
@@ -99,14 +303,13 @@ def find_duplicates(arr):
             
     return list(duplicates)
 
-# Example Usage:
+# Example Execution:
 numbers = [1, 3, 5, 2, 3, 7, 8, 1, 9, 5]
-result = find_duplicates(numbers)
-print("Duplicate elements:", result)
+print("Duplicate elements:", find_duplicates(numbers))
 # Output: Duplicate elements: [1, 3, 5]
 \`\`\`
 
-### Method 2: Using \`collections.Counter\` (Idiomatic Python)
+### Method 2: Using \`collections.Counter\`
 
 \`\`\`python
 from collections import Counter
@@ -115,256 +318,88 @@ def find_duplicates_counter(arr):
     counts = Counter(arr)
     return [item for item, count in counts.items() if count > 1]
 
-# Example Usage:
+# Example:
 print(find_duplicates_counter([4, 2, 4, 7, 8, 2, 3]))
 # Output: [4, 2]
 \`\`\`
 
-**Key Explanation:**
-- **Time Complexity**: $O(n)$ because set lookups and hash table operations take $O(1)$ average time.
-- **Space Complexity**: $O(n)$ to store unique items in memory.
-- Using \`set()\` prevents duplicates from being added multiple times if an element appears 3+ times.`;
+**Why this works:**
+- \`seen\` keeps track of elements encountered so far in $O(1)$ average lookup time.
+- \`duplicates\` ensures each duplicate number is collected once without repetitions.`;
   }
 
   if (
-    (normalized.includes('reverse') && normalized.includes('array')) ||
-    (normalized.includes('reverse') && normalized.includes('python'))
+    (normalized.includes('reverse') && normalized.includes('string')) ||
+    (normalized.includes('reverse') && normalized.includes('array'))
   ) {
-    return `Here are the cleanest and most efficient ways to reverse an array (list) in Python:
+    return `### Reversing Sequences in Python & JavaScript
 
-### 1. In-Place Reversal using Two Pointers ($O(1)$ Extra Space)
-
+#### 1. In Python:
 \`\`\`python
-def reverse_array_inplace(arr):
-    """
-    Reverses an array in-place without creating a new list.
-    Time Complexity: O(n)
-    Space Complexity: O(1)
-    """
-    left = 0
-    right = len(arr) - 1
-    
+# Reversing a list in-place: O(n) time, O(1) space
+def reverse_list(arr):
+    left, right = 0, len(arr) - 1
     while left < right:
-        # Swap elements
         arr[left], arr[right] = arr[right], arr[left]
         left += 1
         right -= 1
-        
     return arr
 
-# Example:
-data = [10, 20, 30, 40, 50]
-reverse_array_inplace(data)
-print(data)  # Output: [50, 40, 30, 20, 10]
+# Slicing trick (creates a copy):
+reversed_str = "hello"[::-1] # "olleh"
 \`\`\`
 
-### 2. Pythonic Slicing (Returns a New Reversed Copy)
+#### 2. In JavaScript:
+\`\`\`javascript
+// Reversing a string:
+const str = "multi-agent";
+const reversed = str.split('').reverse().join('');
+console.log(reversed); // "tnega-itlum"
 
-\`\`\`python
-# Slicing creates a reversed shallow copy:
-original = [1, 2, 3, 4, 5]
-reversed_copy = original[::-1]
-print(reversed_copy)  # Output: [5, 4, 3, 2, 1]
-\`\`\`
-
-### 3. Built-in Methods
-
-\`\`\`python
-# Modify in-place:
-items = ["alpha", "beta", "gamma"]
-items.reverse()
-print(items)  # Output: ['gamma', 'beta', 'alpha']
-
-# Or use reversed() iterator:
-rev_iter = list(reversed([100, 200, 300]))
-print(rev_iter)  # Output: [300, 200, 100]
+// Reversing an array without mutating:
+const arr = [1, 2, 3, 4, 5];
+const reversedArr = [...arr].reverse();
+console.log(reversedArr); // [5, 4, 3, 2, 1]
 \`\`\``;
   }
 
-  // 3. Technical: REST API Explanation
-  if (normalized.includes('rest api') || (normalized.includes('rest') && normalized.includes('api'))) {
-    return `### What is a REST API?
-
-**REST** stands for **REpresentational State Transfer**. It is a software architectural style that defines a set of conventions for how web clients (like browsers or mobile apps) exchange data with a web server over **HTTP**.
-
----
-
-### Core Concept: Resources and Standard HTTP Methods
-
-In REST, everything is treated as a **Resource** (e.g., users, research reports, articles), identified by a clean **URL URI**. You interact with resources using standard HTTP verbs:
-
-| HTTP Verb | Action | Example Endpoint | Purpose |
-| :--- | :--- | :--- | :--- |
-| **GET** | Retrieve data | \`GET /api/research/123\` | Fetch details of session \`123\` |
-| **POST** | Create a resource | \`POST /api/research\` | Create a new research session |
-| **PUT / PATCH**| Update data | \`PATCH /api/users/profile\` | Update user profile fields |
-| **DELETE** | Remove data | \`DELETE /api/research/123\` | Delete session \`123\` |
-
----
-
-### Practical Example
-
-#### 1. Client sends HTTP Request:
-\`\`\`http
-POST /api/research HTTP/1.1
-Host: api.example.com
-Content-Type: application/json
-Authorization: Bearer <jwt_token>
-
-{
-  "topic": "Quantum Computing Security in 2026"
-}
-\`\`\`
-
-#### 2. Server processes and responds with JSON:
-\`\`\`http
-HTTP/1.1 201 Created
-Content-Type: application/json
-
-{
-  "sessionId": "6abd47310a9f80fdb83d8119",
-  "status": "CREATED",
-  "topic": "Quantum Computing Security in 2026"
-}
-\`\`\`
-
----
-
-### The 4 Golden Rules of REST:
-1. **Stateless**: The server does not store client session state between requests; all authentication tokens are passed in every request header.
-2. **Client-Server Separation**: The React frontend and Express backend can change independently.
-3. **Uniform Interface**: Consistent URLs and JSON payloads across all services.
-4. **Cacheable**: GET responses can be cached to improve performance.`;
-  }
-
-  // 4. RAG vs Fine-Tuning
-  if (normalized.includes('rag') && (normalized.includes('fine-tuning') || normalized.includes('finetuning') || normalized.includes('difference'))) {
-    return `### RAG vs. Fine-Tuning: Architectural Comparison
-
-Both **RAG (Retrieval-Augmented Generation)** and **Fine-Tuning** specialize Large Language Models (LLMs), but they solve different problems in contrasting ways:
-
-| Dimension | **RAG (Retrieval-Augmented Generation)** | **Fine-Tuning** |
-| :--- | :--- | :--- |
-| **Core Concept** | Attaches a dynamic search engine/vector database to the prompt at query time | Retrains the model's internal neural weights with domain-specific pairs |
-| **Knowledge Currency** | **Real-time / Instant**: Update your documents and the model knows immediately | **Static**: Stale as soon as training ends; requires retraining for updates |
-| **Hallucination Risk** | **Low**: Model is explicitly instructed to cite retrieved passages | **Moderate to High**: Knowledge remains implicit in weights |
-| **Setup Cost** | Moderate (Vector DB + embeddings) | High (GPU compute, curated training datasets) |
-| **Best For** | Fact retrieval, proprietary documentation, dynamic enterprise data, verified research | Teaching tone, style, specific output formats, specialized domain syntax (e.g. medical jargon, legal drafting) |
-
-### When to Use Which?
-- **Use RAG** when you need your AI to reference fresh information, quote exact sources with page citations, or search your private files.
-- **Use Fine-Tuning** when you want to change *how* the model behaves (e.g., talk like a senior radiologist or format responses in a proprietary dialect).
-- **Hybrid Approach**: Many production systems fine-tune a model to follow strict formatting guidelines, and then feed it dynamic context via RAG.`;
-  }
-
-  // 5. What is Artificial Intelligence?
-  if (normalized.includes('what is artificial intelligence') || normalized === 'what is ai' || normalized === 'what is ai?') {
-    return `### What is Artificial Intelligence (AI)?
-
-**Artificial Intelligence (AI)** is a branch of computer science dedicated to creating systems capable of performing tasks that typically require human cognition, such as visual perception, natural language understanding, reasoning, problem-solving, and autonomous decision-making.
-
----
-
-### Core Branches of Modern AI:
-
-1. **Machine Learning (ML)**: Algorithms that learn predictive patterns from historical data without being explicitly programmed with rigid rules.
-2. **Deep Learning (Neural Networks)**: Multi-layered computational graphs inspired by biological neural circuits, excelling at high-dimensional unstructured data (computer vision, speech recognition).
-3. **Natural Language Processing (NLP) & LLMs**: Architectures (like Transformers) that analyze, translate, summarize, and generate human language.
-4. **Autonomous Multi-Agent Systems**: Ensembles of specialized AI agents that collaborate to execute complex end-to-end workflows (like this research assistant's planner, searcher, summarizer, and fact-checker).
-
----
-
-### Key Distinctions:
-- **Narrow AI (Weak AI)**: AI designed to excel at a specific domain (e.g., playing chess, transcribing audio, conducting deep research). All current AI is Narrow AI.
-- **Artificial General Intelligence (AGI)**: Theoretical AI capable of matching or exceeding human intellect across all intellectual domains.`;
-  }
-
-  // 6. Application Architecture & How it works
-  if (
-    normalized.includes('how does this') ||
-    normalized.includes('how does the research') ||
-    normalized.includes('pipeline work') ||
-    normalized.includes('fact-checking agent') ||
-    normalized.includes('what can i do on this website') ||
-    normalized.includes('how do i start')
-  ) {
-    return `### Multi-Agent Research Assistant Architecture
-
-This application is an **Autonomous Deep Research Platform** powered by **6 specialized coordinated AI agents** that work together to turn any topic into a verified, cited report:
-
----
-
-### The 6 Coordinated Agents:
-1. **Planner Agent**: Analyzes your topic and decomposes it into 3–5 targeted sub-questions designed to cover technical, economic, and practical angles.
-2. **Search Agent**: Runs automated parallel web searches across search engines to discover candidate sources while respecting rate limits.
-3. **Summarizer Agent**: Ingests and cleans discovered web content, extracting discrete empirical claims, dates, and quantitative statistics.
-4. **Fact-Checker Agent**: Cross-verifies claims across independent sources, identifying agreements and highlighting explicit contradictions.
-5. **Technical Writer Agent**: Synthesizes the verified evidence package into an executive summary, key findings, and detailed analyses with inline citations (e.g. \`[S1]\`, \`[S2]\`).
-6. **Citation Validator Agent**: Verifies that every single citation in the report maps strictly to a genuine, ingested source with zero fabrication.
-
----
-
-### How to Use the App:
-- **Start Research**: Enter any question or topic in the search box on the **Home** page or tell Helper what to investigate.
-- **Watch Live Progress**: Monitor real-time WebSocket events as agents plan, search, summarize, and cross-check.
-- **Export & Review**: Read the structured report, inspect identified contradictions, review cited sources, or export to Markdown/PDF.
-- **Account & History**: Register/sign in with JWT authentication to save and revisit your previous research sessions anytime from the **History** tab.`;
-  }
-
-  // 7. Research formulation & methodology
-  if (
-    normalized.includes('methodology') || 
-    normalized.includes('improve my research') || 
-    normalized.includes('research question')
-  ) {
-    return `### Formulating a Robust Research Methodology
-
-To construct a high-impact research inquiry, apply the **PICO / SMART Research Framework**:
-
-1. **Specific Scope**: Narrow broad topics (e.g. instead of *"AI in healthcare"*, focus on *"Diagnostic accuracy of deep-learning CNNs in detecting diabetic retinopathy in rural Indian clinics"*).
-2. **Empirical Measurability**: Identify tangible metrics (e.g., latency, sensitivity/specificity, false positive rate, cost per inference, labor displacement percentages).
-3. **Comparative Baseline**: Contrast against current standards (e.g., *"compared to conventional human radiologist double-reading"*).
-4. **Counter-Evidence Analysis**: Specifically search for failure modes, regulatory bottlenecks, and algorithmic bias.
-
----
-
-### Proposed Research Outline for Your Inquiry:
-- **Phase 1: Taxonomy & Definitions**: Defining operational parameters and evaluation metrics.
-- **Phase 2: Source Ingestion**: Academic preprints (arXiv), regulatory frameworks, and peer-reviewed journals.
-- **Phase 3: Cross-Source Fact Checking**: Reconciling performance claims against real-world clinical or benchmark evaluations.
-- **Phase 4: Synthesis & Limitations**: Identifying open research gaps and reproducibility constraints.
-
-*Would you like me to launch this topic in our autonomous research pipeline to gather live sources and cross-check claims?*`;
-  }
-
-  // 8. Research Request Detection
+  // -------------------------------------------------------------------------
+  // 7. Research Requests & Topic Identification
+  // -------------------------------------------------------------------------
   if (isResearchTopic || suggestedTopic) {
-    const topicTitle = suggestedTopic || message;
-    return `### Research Topic Identified
+    const topicTitle = suggestedTopic || trimmed;
+    return `### Research Topic Identified ✨
 
-Your query regarding **"${topicTitle}"** is an empirical research topic that would benefit from our **Autonomous Multi-Agent Pipeline** rather than a simple conversational summary.
+Your inquiry regarding **"${topicTitle}"** is a multi-dimensional research topic well-suited for our **Autonomous Multi-Agent Pipeline**.
 
-If we launch this research session:
-1. **Planner Agent** will decompose the topic into targeted sub-questions.
-2. **Search Agent** will retrieve authentic external sources.
-3. **Summarizer Agent** will extract factual claims and metrics.
-4. **Fact-Checker Agent** will reconcile cross-source contradictions.
-5. **Technical Writer** will synthesize a structured, cited research report.
-6. **Citation Validator** will enforce 100% zero-fabrication citations.
+#### What Our Agents Will Do:
+1. **Planner Agent**: Decomposes "${topicTitle}" into 3 to 5 targeted sub-questions.
+2. **Search Agent**: Executes parallel web queries to retrieve candidate sources with rate-limiting.
+3. **Summarizer Agent**: Extracts empirical claims, dates, and quantitative statistics.
+4. **Fact-Checker Agent**: Cross-references claims and flags conflicting claims or source discrepancies.
+5. **Technical Writer**: Synthesizes a structured report with an executive summary and key findings.
+6. **Citation Validator**: Verifies every citation against authentic sources to ensure zero hallucination.
 
-Click the action button below to initiate this research session directly!`;
+*Click the **🚀 Launch Deep Research** button below to begin this autonomous research session!*`;
   }
 
-  // 9. Default Comprehensive Technical Response
-  return `### Analysis & Overview
+  // -------------------------------------------------------------------------
+  // 8. General Dynamic Technical Synthesis
+  // -------------------------------------------------------------------------
+  return `### Analysis & Practical Guide
 
-Regarding your inquiry: **"${message.trim()}"**
+Regarding your inquiry: **"${trimmed}"**
 
-1. **Core Concept**: When approaching this topic from a systems and software engineering perspective, the key objective is balancing **clarity**, **reliability**, and **verifiability**.
-2. **Key Considerations**:
-   - Ensure explicit separation of concerns across architectural layers.
-   - Ground all factual assertions in verifiable primary documentation.
-   - Account for edge cases, network latencies, and validation boundaries.
+Here are the key technical concepts, architecture considerations, and recommended next steps:
 
-*If you are exploring this as a topic for deeper academic or technical investigation, you can also launch it directly through our autonomous research pipeline!*`;
+1. **Core Architectural Concept**:
+   - In modern software systems, tackling this requires clear separation of concerns, defensive input validation, and decoupled execution layers.
+   - Ground all data processing in verifiable contracts (e.g. strict TypeScript types, JSON schemas, or normalized database constraints).
+
+2. **Best Practices**:
+   - **Performance**: Optimize critical execution paths and leverage caching where appropriate (e.g. HTTP \`Cache-Control\` or Redis).
+   - **Resilience**: Implement graceful fallback mechanisms, exponential retry logic, and circuit breakers for external service dependencies.
+   - **Auditability**: Maintain structured telemetry and logs to enable rapid debugging and operational observability.
+
+*Would you like to see a specific code example, dive into one of these components, or formulate this as a research topic for our multi-agent pipeline?*`;
 }
