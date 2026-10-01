@@ -8,6 +8,7 @@ import { corsOptions } from './config/cors.js';
 
 import authRoutes from './routes/auth.routes.js';
 import researchRoutes from './routes/research.routes.js';
+import helperRoutes from './routes/helper.routes.js';
 
 const app = express();
 
@@ -44,6 +45,9 @@ app.use('/api/auth', authRoutes);
 
 // Research API endpoints (Phase 2 requirement)
 app.use('/api/research', researchRoutes);
+
+// Helper AI Assistant endpoints
+app.use('/api/helper', helperRoutes);
 
 // 404 Handler
 app.use((req, res) => {

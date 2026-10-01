@@ -9,6 +9,7 @@ import Scene from './components/Scene.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ResearchProvider } from './context/ResearchContext.jsx';
 import { ResearchAPI } from './services/api.js';
+import Helper from './components/Helper/Helper.jsx';
 
 export default function App() {
   const [healthStatus, setHealthStatus] = useState('ok');
@@ -75,6 +76,9 @@ export default function App() {
               </div>
             </div>
           </footer>
+
+          {/* Layer 3: Helper Conversational AI Assistant */}
+          <Helper />
         </div>
       </ResearchProvider>
       </AuthProvider>

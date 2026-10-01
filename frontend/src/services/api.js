@@ -64,6 +64,13 @@ export const AuthAPI = {
   },
 };
 
+export const HelperAPI = {
+  async chat({ message, history = [], conversationId = null }) {
+    const res = await api.post('/helper/chat', { message, history, conversationId });
+    return res.data;
+  },
+};
+
 export const ResearchAPI = {
   // Session management
   async createSession(topic) {
